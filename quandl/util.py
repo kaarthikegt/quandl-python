@@ -52,7 +52,12 @@ class Util(object):
     def convert_to_date(value):
         if isinstance(value, string_types) and re.search(r'^\d{4}-\d{2}-\d{2}$', value):
             # convert to datetime.date
-            return dateutil.parser.parse(value).date()
+            # Issue: During fetching of records from quandl, some of date fields are
+            # string. This code converts date string to date object
+            # But MongoDB does not store dateobject. It requires default timestamp
+            # Hence to maintain uniformity, following change has been done
+            # converting date string to date object with default time as 00:00:00.000z
+            return dateutil.parser.parse(value)        
         elif isinstance(value, string_types) and re.search(r'^\d{4}-\d{2}-\d{2}T[\d:\.]+Z$', value):
             # convert to datetime.datetime, default timezone is utc
             return dateutil.parser.parse(value)
